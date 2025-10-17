@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 // Spawn processor worker
-const processor = new Worker(new URL("./processor-worker.ts", import.meta.url).href);
+const processor = new Worker(new URL("./auxiliary/processor-worker.ts", import.meta.url).href);
 
 // Start webhook server
 const PORT = process.env.PORT || 3000;

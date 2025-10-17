@@ -1,4 +1,4 @@
-export interface Attendee {
+interface Attendee {
     name: string;
     email: string;
 }

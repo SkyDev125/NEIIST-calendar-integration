@@ -5,7 +5,7 @@ const notion = new Client({
     auth: process.env.NOTION_TOKEN,
 })
 
-export async function getTitleFromPage(pageId: string, property: string = "name"): Promise<string> {
+async function getTitleFromPage(pageId: string, property: string = "name"): Promise<string> {
     if (!pageId) return "Unknown";
 
     const page = await notion.pages.retrieve({ page_id: pageId });
@@ -24,7 +24,7 @@ export async function getTitleFromPage(pageId: string, property: string = "name"
     return `Unknown ${property}`;
 }
 
-export async function getPersonFromPage(pageId: string): Promise<{ name: string; email: string }> {
+async function getPersonFromPage(pageId: string): Promise<{ name: string; email: string }> {
     if (!pageId) return { name: "Unknown", email: "" };
 
     const page = await notion.pages.retrieve({ page_id: pageId });
