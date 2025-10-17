@@ -4,6 +4,7 @@ import { mapRelationToTitles, mapRelationToPeople } from "./processor-aux";
 import { Client } from "@notionhq/client";
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import "dotenv/config";
+import { createEvent, createMeeting } from "./calendar";
 
 declare var self: Worker;
 
@@ -93,42 +94,19 @@ async function process_meeting(
 
     // ------------------- Google Calendar --------------------
 
+    await createMeeting(meeting as MeetingStruct);
+
+    console.log("Meeting created in Google Calendar");
 }
 
 async function process_event(properties: PageObjectResponse["properties"] & { id: { type: "unique_id"; unique_id: { prefix: string; number: number } } }) {
     console.log("Processing Event with ID:", properties.id);
 
-    // Helper to safely get title text
-    const getName = () => {
-        const prop = properties.name;
-        if (prop && prop.type === "title" && prop.title[0]?.type === "text") {
-            return prop.title[0].text.content || "No Title";
-        }
-        return "No Title";
-    };
-
-    // Helper to safely get rich text
-    const getDescription = () => {
-        const prop = properties.description;
-        if (prop && prop.type === "rich_text" && prop.rich_text[0]?.type === "text") {
-            return prop.rich_text[0].text.content || "";
-        }
-        return "";
-    };
-
-    // Helper to safely get unique ID
-    const getId = () => {
-        const prop = properties.id;
-        if (prop && prop.type === "unique_id" && prop.unique_id) {
-            return (prop.unique_id.prefix || "") + (prop.unique_id.number || "");
-        }
-        return "Unknown";
-    };
-
     let event: Partial<EventStruct> = {
-        name: getName(),
-        description: getDescription(),
-        id: getId(),
+        name: getName(properties.name),
+        description: getDescription(properties.description),
+        date: getDate(properties.date),
+        id: properties.id.unique_id.prefix + properties.id.unique_id.number,
     }
 
     // Prepare all property fetch promises in parallel
@@ -172,10 +150,12 @@ async function process_event(properties: PageObjectResponse["properties"] & { id
     await Promise.all(promises);
 
     console.log("Event details:", event);
-    
+
     // ------------------- Google Calendar --------------------
 
+    await createEvent(event as EventStruct);
 
+    console.log("Event created in Google Calendar");
 }
 
 self.addEventListener("message", async (event: MessageEvent) => {
