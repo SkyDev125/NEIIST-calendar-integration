@@ -1,6 +1,6 @@
 // Processor worker - receives webhook payloads and processes them
 import type { MeetingStruct, EventStruct } from "./interfaces";
-import { mapRelationToTitles, mapRelationToPeople } from "./processor-aux";
+import { mapRelationToTitles, mapRelationToPeople, createPage } from "./processor-aux";
 import { Client } from "@notionhq/client";
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import "dotenv/config";
@@ -90,11 +90,12 @@ async function process_meeting(
 
     await Promise.all(promises);
 
-    console.log("Meeting details:", meeting);
+    // ------------------- Google Calendar & Notion Calendar --------------------
 
-    // ------------------- Google Calendar --------------------
-
-    await createMeeting(meeting as MeetingStruct);
+    await Promise.all([
+        createPage(properties),
+        createMeeting(meeting as MeetingStruct),
+    ]);
 
     console.log("Meeting created in Google Calendar");
 }
@@ -149,11 +150,12 @@ async function process_event(properties: PageObjectResponse["properties"] & { id
 
     await Promise.all(promises);
 
-    console.log("Event details:", event);
+    // ------------------- Google Calendar & Notion Calendar --------------------
 
-    // ------------------- Google Calendar --------------------
-
-    await createEvent(event as EventStruct);
+    await Promise.all([
+        createPage(properties),
+        createEvent(event as EventStruct),
+    ]);
 
     console.log("Event created in Google Calendar");
 }

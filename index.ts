@@ -4,8 +4,14 @@ import "dotenv/config";
 const processor = new Worker(new URL("./auxiliary/processor-worker.ts", import.meta.url).href);
 
 // Start webhook server
-const PORT = process.env.PORT || 3000;
-const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES) || 1_000_000;
+const PORT = process.env.PORT;
+const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES);
+if (!PORT) {
+    throw new Error("PORT not defined in environment");
+}
+if (isNaN(Number(MAX_BODY_BYTES))) {
+    throw new Error("MAX_BODY_BYTES must be a number");
+}
 
 Bun.serve({
     port: PORT,
