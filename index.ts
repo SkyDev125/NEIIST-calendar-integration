@@ -7,10 +7,10 @@ const processor = new Worker(new URL("./auxiliary/processor-worker.ts", import.m
 const PORT = process.env.PORT;
 const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES);
 if (!PORT) {
-    throw new Error("PORT not defined in environment");
+    throw new Error("[webhook] PORT not defined in environment");
 }
 if (isNaN(Number(MAX_BODY_BYTES))) {
-    throw new Error("MAX_BODY_BYTES must be a number");
+    throw new Error("[webhook] MAX_BODY_BYTES must be a number");
 }
 
 Bun.serve({

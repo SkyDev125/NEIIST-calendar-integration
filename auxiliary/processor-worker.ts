@@ -39,7 +39,6 @@ function getDate(prop: any): { start: string; end: string } {
 async function process_meeting(
     properties: PageObjectResponse["properties"] & { id: { type: "unique_id"; unique_id: { prefix: string; number: number } } }
 ) {
-    console.log("Processing Meeting with ID:", properties.id);
 
     let meeting: Partial<MeetingStruct> = {
         name: getName(properties.name),
@@ -97,12 +96,10 @@ async function process_meeting(
         createMeeting(meeting as MeetingStruct),
     ]);
 
-    console.log("Meeting created in Google Calendar");
+    console.log("[processor] Meeting Created/Updated in Google Calendar");
 }
 
 async function process_event(properties: PageObjectResponse["properties"] & { id: { type: "unique_id"; unique_id: { prefix: string; number: number } } }) {
-    console.log("Processing Event with ID:", properties.id);
-
     let event: Partial<EventStruct> = {
         name: getName(properties.name),
         description: getDescription(properties.description),
@@ -157,7 +154,7 @@ async function process_event(properties: PageObjectResponse["properties"] & { id
         createEvent(event as EventStruct),
     ]);
 
-    console.log("Event created in Google Calendar");
+    console.log("[processor] Event Created/Updated in Google Calendar & Notion Calendar.");
 }
 
 self.addEventListener("message", async (event: MessageEvent) => {
@@ -172,14 +169,14 @@ self.addEventListener("message", async (event: MessageEvent) => {
         const page = await notion.pages.retrieve({ page_id: pageId });
 
         if (!("properties" in page)) {
-            throw new Error("Page does not have properties");
+            throw new Error("[processor] Page does not have properties");
         }
 
         let properties = (page as PageObjectResponse).properties;
         const id = properties.id;
 
         if (!id || id.type !== "unique_id" || !id.unique_id) {
-            throw new Error("Page does not have a valid unique_id property");
+            throw new Error("[processor] Page does not have a valid unique_id property");
         }
 
         const safeProperties = properties as typeof properties & {
@@ -196,7 +193,7 @@ self.addEventListener("message", async (event: MessageEvent) => {
                 await process_event(safeProperties);
                 break;
             default:
-                throw new Error("Unknown prefix: " + prefix);
+                throw new Error("[processor] Unknown prefix: " + prefix);
         }
     } catch (err) {
         console.error("[processor] Notion error:", err);

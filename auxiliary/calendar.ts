@@ -61,7 +61,7 @@ async function eventExists(eventId: string): Promise<string | null> {
 
         return existingEvent?.id || null;
     } catch (err: any) {
-        console.error('Error checking event existence:', err.message);
+        console.error('[calendar] Error checking event existence:', err.message);
         return null;
     }
 }
@@ -114,7 +114,7 @@ id: ${event.id}
     // Check if event already exists
     const existingEventId = await eventExists(event.id);
     if (existingEventId) {
-        console.log(`Event ${event.id} already exists, updating...`);
+        console.log(`[calendar] Event ${event.id} already exists, updating...`);
         const res = await calendarClient.events.update({
             calendarId: eventsCalendarId,
             eventId: existingEventId,
@@ -148,7 +148,7 @@ async function meetingExists(meetingId: string): Promise<string | null> {
 
         return existingMeeting?.id || null;
     } catch (err: any) {
-        console.error('Error checking meeting existence:', err.message);
+        console.error('[calendar] Error checking meeting existence:', err.message);
         return null;
     }
 }
@@ -201,7 +201,7 @@ id: ${meeting.id}
     // Check if meeting already exists
     const existingMeetingId = await meetingExists(meeting.id);
     if (existingMeetingId) {
-        console.log(`Meeting ${meeting.id} already exists, updating...`);
+        console.log(`[calendar] Meeting ${meeting.id} already exists, updating...`);
         const res = await calendarClient.events.update({
             calendarId: meetingsCalendarId,
             eventId: existingMeetingId,
@@ -290,9 +290,9 @@ async function syncCalendarSharing(calendarId: string, emails: string[], role: '
                         role,
                     },
                 });
-                console.log(`Shared calendar ${calendarId} with ${email} as ${role}`);
+                console.log(`[calendar] Shared calendar ${calendarId} with ${email} as ${role}`);
             } catch (err: any) {
-                console.error(`Failed to share calendar with ${email}:`, err.message);
+                console.error(`[calendar] Failed to share calendar with ${email}:`, err.message);
             }
         }
     }
@@ -308,9 +308,9 @@ async function syncCalendarSharing(calendarId: string, emails: string[], role: '
                     calendarId,
                     ruleId: currentAcl[email],
                 });
-                console.log(`Removed calendar access for ${email}`);
+                console.log(`[calendar] Removed calendar access for ${email}`);
             } catch (err: any) {
-                console.error(`Failed to remove calendar access for ${email}:`, err.message);
+                console.error(`[calendar] Failed to remove calendar access for ${email}:`, err.message);
             }
         }
     }
@@ -332,9 +332,9 @@ async function setupCalendars() {
         if (newId) {
             eventsCalendarId = newId;
             updateEnvFile('NEIIST_EVENTS_CALENDAR_ID', eventsCalendarId);
-            console.log('Created Events Calendar and saved to .env:', eventsCalendarId);
+            console.log('[calendar]: Created Events Calendar and saved to .env:', eventsCalendarId);
         } else {
-            throw new Error('Failed to create Events Calendar');
+            throw new Error('[calendar] Failed to create Events Calendar');
         }
     }
     if (!meetingsCalendarId) {
@@ -342,9 +342,9 @@ async function setupCalendars() {
         if (newId) {
             meetingsCalendarId = newId;
             updateEnvFile('NEIIST_MEETINGS_CALENDAR_ID', meetingsCalendarId);
-            console.log('Created Meetings Calendar and saved to .env:', meetingsCalendarId);
+            console.log('[calendar] Created Meetings Calendar and saved to .env:', meetingsCalendarId);
         } else {
-            throw new Error('Failed to create Meetings Calendar');
+            throw new Error('[calendar] Failed to create Meetings Calendar');
         }
     }
 
@@ -355,8 +355,8 @@ async function setupCalendars() {
     await syncCalendarSharing(meetingsCalendarId, shareList, 'reader');
 
 
-    console.log('Events Calendar ID:', eventsCalendarId);
-    console.log('Meetings Calendar ID:', meetingsCalendarId);
+    console.log('[calendar] Events Calendar ID:', eventsCalendarId);
+    console.log('[calendar] Meetings Calendar ID:', meetingsCalendarId);
 }
 
 setupCalendars();

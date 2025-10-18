@@ -64,7 +64,7 @@ export async function createPage(
 ): Promise<string> {
     const NOTION_DATA_SOURCE_ID = process.env.NOTION_DATA_SOURCE;
     if (!NOTION_DATA_SOURCE_ID) {
-        throw new Error("NOTION_DATA_SOURCE not defined in environment");
+        throw new Error("[processor] NOTION_DATA_SOURCE not defined in environment");
     }
 
     const sourceValue = `${properties.id.unique_id.prefix}-${properties.id.unique_id.number}`;
